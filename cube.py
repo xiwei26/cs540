@@ -510,7 +510,7 @@ def aStarSearchHelper(parentNode, actionsF, takeActionF, goalTestF, hF, fmax):
 def goalTestF(state, goal):
     return state==goal
 
-def h1(start, end):
+def h0(start, end):
     state=start.state()
     goal=end.state()
     totalDistance=0
@@ -525,7 +525,9 @@ def h1(start, end):
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
     return totalDistance+dronetocube
 
-def h2(start, end):
+
+
+def h1(start, end):
     state=start.state()
     goal=end.state()
     totalDistance=0
@@ -547,30 +549,28 @@ def h2(start, end):
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
     return totalDistance+dronetocube
 
-def h3(start, end):
+def h2(start, end):
     state=start.state()
     goal=end.state()
     totalDistance=0
     dronetocube=99999
     drone=start.drone
     for key in state:
-        if state[key].cubeColor()!="drone":
-            
         for key1 in goal:
             if (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone"):
                 valX=state[key].getPosition().getX()-goal[key1].getPosition().getX()
                 valY=state[key].getPosition().getY()-goal[key1].getPosition().getY()
                 valZ=state[key].getPosition().getZ()-goal[key1].getPosition().getZ()
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
-            else if (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone") and (state[key].getPosition()!=goal[key1].getPosition()):
+            elif (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone") and (state[key].getPosition()!=goal[key1.getPosition()]):
                 dX=drone.getPosition().getX()-state[key].getPosition().getX()
                 dY=drone.getPosition().getX()-state[key].getPosition().getX()
                 dZ=drone.getPosition().getX()-state[key].getPosition().getX()
                 ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
                 if ddd< dronetocube:
                     dronetocube=ddd
-
     return totalDistance+dronetocube
+
 
 def actionsF(droneWorld):
     currState= droneWorld.state()
@@ -687,7 +687,7 @@ def takeAction(droneWorld, action):
         droneWorld1.move(1,1,-1)
     if action==((0,1,0),1):
         droneWorld1.move(0,1,0)
-    if action==((0,-1,0),1):
+    if action==((1,1,-1),1):
         droneWorld1.move(0,-1,0)
     if action==(("attach",0)):
         droneWorld1.Attach()
@@ -706,7 +706,7 @@ if __name__ == "__main__":
     totalDistance=0
     result,depth = aStarSearch(ourWorld1, actionsF, takeAction,
                                 lambda s: goalTestF(s.state(), ourWorld2.state()),
-                               lambda s: h1(s,ourWorld2))
+                               lambda s: h0(s,ourWorld2))
     elapsed_time = time.time() - start_time
     print("path is :")
     for a in result:
