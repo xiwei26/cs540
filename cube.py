@@ -285,7 +285,7 @@ class DroneWorld:
         return True
 
     def Release(self):
-        #print("Drone release")
+        print("Drone release")
         if self.drone.hasCubeAttached() is False:
             self.trackInvalidDroneRelease += 1
             print("ERROR: Drone is not carrying a cube")
@@ -479,6 +479,7 @@ def aStarSearchHelper(parentNode, actionsF, takeActionF, goalTestF, hF, fmax):
     actionsTaken = []
     for action in actions:
         (childState,stepCost) = takeActionF(parentNode.state, action)
+
         #count=count+1
         #childState.printState()
         #print("action taken: ", count)
@@ -489,11 +490,21 @@ def aStarSearchHelper(parentNode, actionsF, takeActionF, goalTestF, hF, fmax):
         children.append(childNode)
     while True:
         # find best child
+        #print("_________-1")
+        #parentNode.state.printState()
         children.sort(key = lambda n: n.f) # sort by f value
-        #print(len(children))
+        #print("_________0")
+        #for c in children:
+        #    print(c.action,c.f, h,g,parentNode.f)
         bestChild = children[0]
+        #print("_________1")
+        #print(len(children))
+        #print(bestChild.h)
+        #print("_________2")
         #print(bestChild.action)
+        #print("_________3")
         #bestChild.state.printState()
+        
 
         if bestChild.f > fmax:
             return ("failure",bestChild.f)
@@ -525,8 +536,6 @@ def h0(start, end):
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
     return totalDistance+dronetocube
 
-
-
 def h1(start, end):
     state=start.state()
     goal=end.state()
@@ -536,8 +545,25 @@ def h1(start, end):
     for key in state:
         if state[key].cubeColor()!="drone":
             dX=drone.getPosition().getX()-state[key].getPosition().getX()
-            dY=drone.getPosition().getX()-state[key].getPosition().getX()
-            dZ=drone.getPosition().getX()-state[key].getPosition().getX()
+            dY=drone.getPosition().getY()-state[key].getPosition().getY()
+            dZ=drone.getPosition().getZ()-state[key].getPosition().getZ()
+            ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
+            if ddd< dronetocube:
+                dronetocube=ddd
+    return totalDistance+dronetocube
+
+#similar to #4 but it returns the distance= min(drone to any offset cube)+manhatten distance between all offset cube
+def h2(start, end):
+    state=start.state()
+    goal=end.state()
+    totalDistance=0
+    dronetocube=99999
+    drone=start.drone
+    for key in state:
+        if state[key].cubeColor()!="drone":
+            dX=drone.getPosition().getX()-state[key].getPosition().getX()
+            dY=drone.getPosition().getY()-state[key].getPosition().getY()
+            dZ=drone.getPosition().getZ()-state[key].getPosition().getZ()
             ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
             if ddd< dronetocube:
                 dronetocube=ddd
@@ -549,7 +575,7 @@ def h1(start, end):
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
     return totalDistance+dronetocube
 
-def h2(start, end):
+def h3(start, end):
     state=start.state()
     goal=end.state()
     totalDistance=0
@@ -562,15 +588,49 @@ def h2(start, end):
                 valY=state[key].getPosition().getY()-goal[key1].getPosition().getY()
                 valZ=state[key].getPosition().getZ()-goal[key1].getPosition().getZ()
                 totalDistance+=math.sqrt(valX*valX+valY*valY+valZ*valZ)
-            elif (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone") and (state[key].getPosition()!=goal[key1.getPosition()]):
+            elif (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone") and (state[key].getPosition()!=goal[key1].getPosition()):
                 dX=drone.getPosition().getX()-state[key].getPosition().getX()
-                dY=drone.getPosition().getX()-state[key].getPosition().getX()
-                dZ=drone.getPosition().getX()-state[key].getPosition().getX()
+                dY=drone.getPosition().getY()-state[key].getPosition().getY()
+                dZ=drone.getPosition().getZ()-state[key].getPosition().getZ()
                 ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
                 if ddd< dronetocube:
                     dronetocube=ddd
     return totalDistance+dronetocube
 
+# h4 will let the drone attached a cube offset cube first, and then try to bring it to the goal position.
+def h4(start, end):
+    state=start.state()
+    goal=end.state()
+    totalDistance=0
+    dronetocube=99999
+    drone=start.drone
+    if drone.hasCubeAttached()==False:
+        #print("here")
+        for key in state:
+            for key1 in goal:
+                if (state[key].cubeColor()==goal[key1].cubeColor()) and (state[key].cubeColor()!="drone") and (state[key].getPosition()!=goal[key1].getPosition()):
+                    #print("should be here")
+                    dX=drone.getPosition().getX()-state[key].getPosition().getX()
+                    #print("x",dX)
+                    dY=drone.getPosition().getY()-state[key].getPosition().getY()
+                    #print("y",dY)
+                    dZ=drone.getPosition().getZ()-state[key].getPosition().getZ()
+                    #print("z",dZ)
+                    ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
+                    if ddd< dronetocube:
+                        dronetocube=ddd
+    else:
+        cube=drone.cubeObject()
+        for key in goal:
+            if cube.cubeColor()==goal[key].cubeColor():
+                dX=cube.getPosition().getX()-goal[key].getPosition().getX()
+                dY=cube.getPosition().getY()-goal[key].getPosition().getY()
+                dZ=cube.getPosition().getZ()-goal[key].getPosition().getZ()
+                ddd=math.sqrt(dX*dX+dY*dY+dZ*dZ)
+                if ddd< dronetocube:
+                    dronetocube=ddd
+
+    return dronetocube
 
 def actionsF(droneWorld):
     currState= droneWorld.state()
@@ -639,61 +699,90 @@ def takeAction(droneWorld, action):
     droneWorld1=copy.deepcopy(droneWorld)
     if action==((0,0,1),1):
         droneWorld1.move(0,0,1)
+        return (droneWorld1,1)
     if action==((1,0,0),1):
         droneWorld1.move(1,0,0)
+        return (droneWorld1,1)
     if action==((-1,0,1),1):
         droneWorld1.move(-1,0,1)
+        return (droneWorld1,1)
     if action==((-1,0,-1),1):
         droneWorld1.move(-1,0,-1)
+        return (droneWorld1,1)
     if action==((0,0,-1),1):
         droneWorld1.move(0,0,-1)
+        return (droneWorld1,1)
     if action==((-1,0,0),1):
         droneWorld1.move(-1,0,0)
+        return (droneWorld1,1)
     if action==((1,0,1),1):
         droneWorld1.move(1,0,1)
+        return (droneWorld1,1)
     if action==((1,0,-1),1):
         droneWorld1.move(1,0,-1)
+        return (droneWorld1,1)
     if action==((0,-1,1),1):
         droneWorld1.move(0,-1,1)
+        return (droneWorld1,1)
     if action==((1,-1,0),1):
         droneWorld1.move(1,-1,0)
+        return (droneWorld1,1)
     if action==((-1,-1,1),1):
         droneWorld1.move(-1,-1,1)
+        return (droneWorld1,1)
     if action==((-1,-1,-1),1):
         droneWorld1.move(-1,-1,-1)
+        return (droneWorld1,1)
     if action==((0,-1,-1),1):
         droneWorld1.move(0,-1,-1)
+        return (droneWorld1,1)
     if action==((-1,-1,0),1):
         droneWorld1.move(-1,-1,0)
+        return (droneWorld1,1)
     if action==((1,-1,1),1):
         droneWorld1.move(1,-1,1)
+        return (droneWorld1,1)
     if action==((1,-1,-1),1):
         droneWorld1.move(1,-1,-1)
+        return (droneWorld1,1)
     if action==((0,1,1),1):
         droneWorld1.move(0,1,1)
+        return (droneWorld1,1)
     if action==((1,1,0),1):
         droneWorld1.move(1,1,0)
+        return (droneWorld1,1)
     if action==((-1,1,1),1):
         droneWorld1.move(-1,1,1)
+        return (droneWorld1,1)
     if action==((-1,1,-1),1):
         droneWorld1.move(-1,1,-1)
+        return (droneWorld1,1)
     if action==((0,1,-1),1):
         droneWorld1.move(0,1,-1)
+        return (droneWorld1,1)
     if action==((-1,1,0),1):
         droneWorld1.move(-1,1,0)
+        return (droneWorld1,1)
     if action==((1,1,1),1):
         droneWorld1.move(1,1,1)
+        return (droneWorld1,1)
     if action==((1,1,-1),1):
         droneWorld1.move(1,1,-1)
+        return (droneWorld1,1)
     if action==((0,1,0),1):
         droneWorld1.move(0,1,0)
+        return (droneWorld1,1)
     if action==((1,1,-1),1):
         droneWorld1.move(0,-1,0)
-    if action==(("attach",0)):
+        return (droneWorld1,1)
+    if action==("attach",0):
         droneWorld1.Attach()
-    if action==(("release",1)):
+        return (droneWorld1,0)
+    if action==("release",1):
         droneWorld1.Release()
-    return (droneWorld1,1)
+        return (droneWorld1,1)
+    return (droneWorld,1)
+    
 
 ################## MAIN ##################### None
 
@@ -703,14 +792,16 @@ if __name__ == "__main__":
     start_time = time.time()
     ourWorld1 = DroneWorld("world1.txt")
     ourWorld2 = DroneWorld("world2.txt")
-    totalDistance=0
+    ourWorld3 = DroneWorld("world3.txt")
     result,depth = aStarSearch(ourWorld1, actionsF, takeAction,
                                 lambda s: goalTestF(s.state(), ourWorld2.state()),
-                               lambda s: h0(s,ourWorld2))
+                               lambda s: h3(s,ourWorld2))
     elapsed_time = time.time() - start_time
     print("path is :")
     for a in result:
         print(a.printState())
     print("Total time: ",elapsed_time)
+
+
     
 
