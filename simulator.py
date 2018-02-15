@@ -5,6 +5,7 @@ import itertools
 import random
 import copy
 import csv
+import os
 
 ACTION_ATTACH = 0
 ACTION_DETACH = 1
@@ -131,5 +132,14 @@ def plot(state,save_to_file = None):
     axes[1,1].set_axis_off()
     if save_to_file:
         plt.savefig(save_to_file)
+        plt.close()
     else:
         plt.show()
+
+
+def save_video(path):
+    os.system('rm -f *.mp4')
+    for i,state in enumerate(path):
+        plot(state,str(i) + ".png")
+    os.system("ffmpeg -r 1 -i %d.png -v 8 -vf \"zoompan=d=1+'2*eq(in,1)'+'2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
+    os.system('rm -f *.png')
