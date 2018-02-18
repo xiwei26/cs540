@@ -1,2 +1,4 @@
 0,0,1,drone
 2,0,0,red
+4,2,0,green
+1,1,0,blue

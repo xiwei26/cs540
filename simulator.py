@@ -102,7 +102,7 @@ def take_action(state,action):
         print(action)
     return state
         
-def plot(state,save_to_file = None):
+def plot(state,save_to_file = None, ignore_drone=False):
     top_data = np.full((MAX_Y-MIN_Y+1,MAX_X-MIN_X+1,3),.4,dtype=float)
     front_data = np.full((MAX_Z-MIN_Z+2,MAX_X-MIN_X+1,3),1,dtype=float)
     side_data = np.full((MAX_Z-MIN_Z+2,MAX_Y-MIN_Y+1,3),1,dtype=float)
@@ -110,7 +110,7 @@ def plot(state,save_to_file = None):
     side_data[0] = .4
     for x,y,z in itertools.product(range(MIN_X,MAX_X+1),range(MIN_Y,MAX_Y+1),range(MIN_Z,MAX_Z+1)):
         position = (x,y,z)
-        if state.drone_position == position:
+        if state.drone_position == position and not ignore_drone:
             drone_color = (0,0,0)
             if state.drone_attached:
                 drone_color = (.2,.2,.2)
