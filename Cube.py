@@ -498,27 +498,27 @@ def getNeighbors(currPos,tgtPos):
     mv1Z = int(cpz)
     rank1 = calcDistRank(mv1X,mv1Y,mv1Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank1,(mv1X,mv1Y,mv1Z)))
+    valuesToSort.append((rank1,(1,0,0)))
 
     mv2X = int(cpx)-1
     mv2Y = int(cpy)
     mv2Z = int(cpz)
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(-1,0,0)))
     ##X,Y
     mv2X = int(cpx)+1
     mv2Y = int(cpy)+1
     mv2Z = int(cpz)
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(1,1,0)))
     mv2X = int(cpx)+1
     mv2Y = int(cpy)-1
     mv2Z = int(cpz)
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(1,-1,0)))
     mv2X = int(cpx)-1
     mv2Y = int(cpy)+1
     mv2Z = int(cpz)
@@ -530,85 +530,85 @@ def getNeighbors(currPos,tgtPos):
     mv2Z = int(cpz)
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(-1,-1,0)))
     ##X,Z
     mv2X = int(cpx)+1
     mv2Y = int(cpy)
     mv2Z = int(cpz)-1
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(1,0,-1)))
     mv2X = int(cpx)-1
     mv2Y = int(cpy)
     mv2Z = int(cpz)-1
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(-1,0,-1)))
     mv2X = int(cpx)-1
     mv2Y = int(cpy)
     mv2Z = int(cpz)+1
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(-1,0,1)))
     mv2X = int(cpx)+1
     mv2Y = int(cpy)
     mv2Z = int(cpz)+1
     rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
     priorQ.put(rank2)
-    valuesToSort.append((rank2,(mv2X,mv2Y,mv2Z)))
+    valuesToSort.append((rank2,(1,0,1)))
 
     mv3X = int(cpx)
     mv3Y = int(cpy)+1
     mv3Z = int(cpz)
     rank3 = calcDistRank(mv3X,mv3Y,mv3Z,tx,ty,tz)
     priorQ.put(rank3)
-    valuesToSort.append((rank3,(mv3X,mv3Y,mv3Z)))
+    valuesToSort.append((rank3,(0,1,0)))
 
     mv4X = int(cpx)
     mv4Y = int(cpy)-1
     mv4Z = int(cpz)
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank4,(mv4X,mv4Y,mv4Z)))
+    valuesToSort.append((rank4,(0,-1,0)))
     ##YZ
     mv4X = int(cpx)
     mv4Y = int(cpy)+1
     mv4Z = int(cpz)-1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank4,(mv4X,mv4Y,mv4Z)))
+    valuesToSort.append((rank4,(0,1,-1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)-1
     mv4Z = int(cpz)-1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank4,(mv4X,mv4Y,mv4Z)))
+    valuesToSort.append((rank4,(0,-1,-1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)-1
     mv4Z = int(cpz)+1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank4,(mv4X,mv4Y,mv4Z)))
+    valuesToSort.append((rank4,(0,-1,1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)+1
     mv4Z = int(cpz)+1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
     priorQ.put(rank1)
-    valuesToSort.append((rank4,(mv4X,mv4Y,mv4Z)))
+    valuesToSort.append((rank4,(0,1,1)))
 
     mv5X = int(cpx)
     mv5Y = int(cpy)
     mv5Z = int(cpz)+1
     rank5 = calcDistRank(mv5X,mv5Y,mv5Z,tx,ty,tz)
     priorQ.put(rank5)
-    valuesToSort.append((rank5,(mv5X,mv5Y,mv5Z)))
+    valuesToSort.append((rank5,(0,0,1)))
 
     mv6X = int(cpx)
     mv6Y = int(cpy)
     mv6Z = int(cpz)-1
     rank6 = calcDistRank(mv6X,mv6Y,mv6Z,tx,ty,tz)
     priorQ.put(rank6)
-    valuesToSort.append((rank6,(mv6X,mv6Y,mv6Z)))
+    valuesToSort.append((rank6,(0,0,-1)))
 
     ## The triples
     mv7X = int(cpx)+1
@@ -616,49 +616,49 @@ def getNeighbors(currPos,tgtPos):
     mv7Z = int(cpz)+1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(1,1,1)))
     mv7X = int(cpx)-1
     mv7Y = int(cpy)-1
     mv7Z = int(cpz)-1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(-1,-1,-1)))
     mv7X = int(cpx)+1
     mv7Y = int(cpy)-1
     mv7Z = int(cpz)-1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(1,-1,-1)))
     mv7X = int(cpx)-1
     mv7Y = int(cpy)+1
     mv7Z = int(cpz)-1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(-1,1,-1)))
     mv7X = int(cpx)-1
     mv7Y = int(cpy)-1
     mv7Z = int(cpz)+1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(-1,-1,1)))
     mv7X = int(cpx)+1
     mv7Y = int(cpy)+1
     mv7Z = int(cpz)-1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(1,1,-1)))
     mv7X = int(cpx)+1
     mv7Y = int(cpy)-1
     mv7Z = int(cpz)+1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(1,-1,1)))
     mv7X = int(cpx)-1
     mv7Y = int(cpy)+1
     mv7Z = int(cpz)+1
     rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
     priorQ.put(rank7)
-    valuesToSort.append((rank7,(mv7X,mv7Y,mv7Z)))
+    valuesToSort.append((rank7,(-1,1,1)))
 
     i = 0
     sz = 26
@@ -679,7 +679,7 @@ def getNeighbors(currPos,tgtPos):
 
     ## put the priority move first
     queueToPass.appendleft((mvX,mvY,mvZ))
-    print("neighborhood2")
+    print("====================neighborhood2")
     return queueToPass
 
 
@@ -697,7 +697,7 @@ def simpleBreadthFirstSearch(wld1,wld2):
     #print("start:",dronePos,drnx,drny,drnz)
     frontier = JQueue()
     frontier.put(dronePos)
-    #pathTo = []
+
     visited = {}
     visited[dronePos] = True
     loopctr = 0
