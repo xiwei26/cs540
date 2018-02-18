@@ -493,19 +493,65 @@ def getNeighbors(currPos,tgtPos):
 
     #### make up the rest of the moves and rank them
         #### make up the rest of the moves and rank them
-    mv1X = int(cpx)+1
-    mv1Y = int(cpy)
-    mv1Z = int(cpz)
-    rank1 = calcDistRank(mv1X,mv1Y,mv1Z,tx,ty,tz)
-    priorQ.put(rank1)
-    valuesToSort.append((rank1,(1,0,0)))
 
-    mv2X = int(cpx)-1
-    mv2Y = int(cpy)
-    mv2Z = int(cpz)
-    rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
-    priorQ.put(rank2)
-    valuesToSort.append((rank2,(-1,0,0)))
+        ## The triples
+    mv7X = int(cpx)
+    mv7Y = int(cpy)
+    mv7Z = int(cpz)
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(0,0,0)))
+
+    mv7X = int(cpx)+1
+    mv7Y = int(cpy)+1
+    mv7Z = int(cpz)+1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(1,1,1)))
+    mv7X = int(cpx)-1
+    mv7Y = int(cpy)-1
+    mv7Z = int(cpz)-1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(-1,-1,-1)))
+    mv7X = int(cpx)+1
+    mv7Y = int(cpy)-1
+    mv7Z = int(cpz)-1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(1,-1,-1)))
+    mv7X = int(cpx)-1
+    mv7Y = int(cpy)+1
+    mv7Z = int(cpz)-1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(-1,1,-1)))
+    mv7X = int(cpx)-1
+    mv7Y = int(cpy)-1
+    mv7Z = int(cpz)+1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(-1,-1,1)))
+    mv7X = int(cpx)+1
+    mv7Y = int(cpy)+1
+    mv7Z = int(cpz)-1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(1,1,-1)))
+    mv7X = int(cpx)+1
+    mv7Y = int(cpy)-1
+    mv7Z = int(cpz)+1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(1,-1,1)))
+    mv7X = int(cpx)-1
+    mv7Y = int(cpy)+1
+    mv7Z = int(cpz)+1
+    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
+    priorQ.put(rank7)
+    valuesToSort.append((rank7,(-1,1,1)))
+
+
     ##X,Y
     mv2X = int(cpx)+1
     mv2Y = int(cpy)+1
@@ -557,43 +603,30 @@ def getNeighbors(currPos,tgtPos):
     priorQ.put(rank2)
     valuesToSort.append((rank2,(1,0,1)))
 
-    mv3X = int(cpx)
-    mv3Y = int(cpy)+1
-    mv3Z = int(cpz)
-    rank3 = calcDistRank(mv3X,mv3Y,mv3Z,tx,ty,tz)
-    priorQ.put(rank3)
-    valuesToSort.append((rank3,(0,1,0)))
-
-    mv4X = int(cpx)
-    mv4Y = int(cpy)-1
-    mv4Z = int(cpz)
-    rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
-    priorQ.put(rank1)
-    valuesToSort.append((rank4,(0,-1,0)))
     ##YZ
     mv4X = int(cpx)
     mv4Y = int(cpy)+1
     mv4Z = int(cpz)-1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
-    priorQ.put(rank1)
+    priorQ.put(rank4)
     valuesToSort.append((rank4,(0,1,-1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)-1
     mv4Z = int(cpz)-1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
-    priorQ.put(rank1)
+    priorQ.put(rank4)
     valuesToSort.append((rank4,(0,-1,-1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)-1
     mv4Z = int(cpz)+1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
-    priorQ.put(rank1)
+    priorQ.put(rank4)
     valuesToSort.append((rank4,(0,-1,1)))
     mv4X = int(cpx)
     mv4Y = int(cpy)+1
     mv4Z = int(cpz)+1
     rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
-    priorQ.put(rank1)
+    priorQ.put(rank4)
     valuesToSort.append((rank4,(0,1,1)))
 
     mv5X = int(cpx)
@@ -610,55 +643,33 @@ def getNeighbors(currPos,tgtPos):
     priorQ.put(rank6)
     valuesToSort.append((rank6,(0,0,-1)))
 
-    ## The triples
-    mv7X = int(cpx)+1
-    mv7Y = int(cpy)+1
-    mv7Z = int(cpz)+1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(1,1,1)))
-    mv7X = int(cpx)-1
-    mv7Y = int(cpy)-1
-    mv7Z = int(cpz)-1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(-1,-1,-1)))
-    mv7X = int(cpx)+1
-    mv7Y = int(cpy)-1
-    mv7Z = int(cpz)-1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(1,-1,-1)))
-    mv7X = int(cpx)-1
-    mv7Y = int(cpy)+1
-    mv7Z = int(cpz)-1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(-1,1,-1)))
-    mv7X = int(cpx)-1
-    mv7Y = int(cpy)-1
-    mv7Z = int(cpz)+1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(-1,-1,1)))
-    mv7X = int(cpx)+1
-    mv7Y = int(cpy)+1
-    mv7Z = int(cpz)-1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(1,1,-1)))
-    mv7X = int(cpx)+1
-    mv7Y = int(cpy)-1
-    mv7Z = int(cpz)+1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(1,-1,1)))
-    mv7X = int(cpx)-1
-    mv7Y = int(cpy)+1
-    mv7Z = int(cpz)+1
-    rank7 = calcDistRank(mv7X,mv7Y,mv7Z,tx,ty,tz)
-    priorQ.put(rank7)
-    valuesToSort.append((rank7,(-1,1,1)))
+    mv1X = int(cpx)+1
+    mv1Y = int(cpy)
+    mv1Z = int(cpz)
+    rank1 = calcDistRank(mv1X,mv1Y,mv1Z,tx,ty,tz)
+    priorQ.put(rank1)
+    valuesToSort.append((rank1,(1,0,0)))
+
+    mv2X = int(cpx)-1
+    mv2Y = int(cpy)
+    mv2Z = int(cpz)
+    rank2 = calcDistRank(mv2X,mv2Y,mv2Z,tx,ty,tz)
+    priorQ.put(rank2)
+    valuesToSort.append((rank2,(-1,0,0)))
+
+    mv3X = int(cpx)
+    mv3Y = int(cpy)+1
+    mv3Z = int(cpz)
+    rank3 = calcDistRank(mv3X,mv3Y,mv3Z,tx,ty,tz)
+    priorQ.put(rank3)
+    valuesToSort.append((rank3,(0,1,0)))
+
+    mv4X = int(cpx)
+    mv4Y = int(cpy)-1
+    mv4Z = int(cpz)
+    rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
+    priorQ.put(rank4)
+    valuesToSort.append((rank4,(0,-1,0)))
 
     i = 0
     sz = 26
@@ -688,6 +699,7 @@ def calcDistRank(newPosX,newPosY,newPosZ, tgtPosX,tgtPosY,tgtPosZ):
 
 ### search for the position in ourWorld2
 def simpleBreadthFirstSearch(wld1,wld2):
+    print("simpleBreadthFirstSearch")
     targetPos = wld2.drone.currentPos().getPositionVals()
     (targx,targy,targz) = targetPos
     #print("target:",targetPos,targx,targy,targz)
@@ -701,7 +713,7 @@ def simpleBreadthFirstSearch(wld1,wld2):
     visited = {}
     visited[dronePos] = True
     loopctr = 0
-    while True:
+    while True: ###loopctr < 10:
         current = frontier.get()
         #print("top of simpleBreadthFirstSearch loop - Visiting:", current)
         moveList = getNeighbors(current,targetPos)
@@ -719,7 +731,7 @@ def simpleBreadthFirstSearch(wld1,wld2):
             newPosY = int(drY) + int(MvY)
             newPosZ = int(drZ) + int(MvZ)
 
-            #print("Mover is:", MvX,MvY,MvZ)
+            print("Mover is:", MvX,MvY,MvZ)
             #print("position to compare:", newPosX,newPosY,newPosZ)
             positionToCompare = (newPosX,newPosY,newPosZ)
 
@@ -774,7 +786,7 @@ def createListOfCubesToMoveByColor(inWld1):
     return colorList
 
 def BFSToFindACube(wld_in,cPos):
-    #print("BFSToFindACube")
+    print("BFSToFindACube")
     print("cPos is:", cPos)
     (cbTargx,cbTargy,cbTargz) = cPos
 
@@ -792,7 +804,7 @@ def BFSToFindACube(wld_in,cPos):
     visited[dronePos] = True
     loopctr = 0
 
-    while True: ## loopctr < 50:
+    while True: ##loopctr < 50:
         current = frontier.get()
         #if current is None:
         #    continue
@@ -806,7 +818,7 @@ def BFSToFindACube(wld_in,cPos):
             if len(moveList) == 0:
                 break
             mover = moveList.popleft()
-            #print("Mover value is:", mover)
+            print("Mover value is:", mover)
             if mover == (0,0,0):
                 print("*********Found position by calculation2")
                 checker = False
@@ -821,8 +833,8 @@ def BFSToFindACube(wld_in,cPos):
             newPosY = int(drY) + int(MvY)
             newPosZ = int(drZ) + int(MvZ)
 
-            #print("Mover is:", MvX,MvY,MvZ)
-            #print("position to compare:", newPosX,newPosY,newPosZ)
+            print("Mover is:", MvX,MvY,MvZ)
+            print("position to compare:", newPosX,newPosY,newPosZ)
             positionToCompare = (newPosX,newPosY,newPosZ)
 
             if positionToCompare not in visited:
@@ -872,7 +884,7 @@ if __name__ == "__main__":
     file1 = open("world1.txt", 'r')
     file2 = open("world2.txt", 'r')
     loopctr = 0
-    while True: ## loopctr < 8:
+    while True: ##  loopctr < 8:
         #print("*********TOP")
         listVal_1 = file1.readline()
         if listVal_1 == '':
