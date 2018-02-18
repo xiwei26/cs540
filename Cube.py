@@ -238,6 +238,7 @@ class DroneWorld:
         ## Create the delta values
         xVal = self.drone.position.getX()
         xVal += int(x)
+        print("**Move new x value, old x:",xVal, x)
         if self.validateXZVal(xVal) is False:
             print("--INVALID Drone move, ERROR: X value is beyond the edge of the globe.")
             self.trackInvalidDroneMoves += 1
@@ -245,12 +246,14 @@ class DroneWorld:
 
         yVal = self.drone.position.getY()
         yVal += int(y)
+        print("**Move new y value, old y:",yVal, y)
         if self.validateValY(yVal) is False:
             print("--INVALID Drone move, ERROR: Invalid Y move value for Drone results in Y =", yVal)
             self.trackInvalidDroneMoves += 1
             return False
         zVal = self.drone.position.getZ()
         zVal += int(z)
+        print("**Move new z value, old z:",zVal, z)
         if self.validateXZVal(zVal) is False:
             print("--INVALID Drone move, ERROR: Z value is beyond the edge of the globe.")
             self.trackInvalidDroneMoves += 1
@@ -273,9 +276,11 @@ class DroneWorld:
 
         ## check that position is open for drone
         if self.globe.get(hashPosition(xVal,yVal,zVal)) is not None:
-            print("\nERROR: occupied space, Drone will not move. Occupied space: ",xVal,yVal,zVal, )
-            self.trackInvalidDroneMoves += 1
-            return False
+            if self.globe.get(hashPosition(xVal,yVal,zVal)).cubeColor() is not 'drone':
+                print("Value at position:",)
+                print("\nERROR: occupied space, Drone will not move. Occupied space: ",xVal,yVal,zVal, )
+                self.trackInvalidDroneMoves += 1
+                return False
 
         print("++Valid Drone move to: ",xVal,yVal,zVal)#logging for reporting
         self.trackValidDroneMoves += 1
@@ -492,9 +497,8 @@ def getNeighbors(currPos,tgtPos):
     valuesToSort = []
 
     #### make up the rest of the moves and rank them
-        #### make up the rest of the moves and rank them
-
-        ## The triples
+    #### make up the rest of the moves and rank them
+    ## The triples
     mv7X = int(cpx)
     mv7Y = int(cpy)
     mv7Z = int(cpz)
@@ -629,6 +633,13 @@ def getNeighbors(currPos,tgtPos):
     priorQ.put(rank4)
     valuesToSort.append((rank4,(0,1,1)))
 
+    mv4X = int(cpx)
+    mv4Y = int(cpy)
+    mv4Z = int(cpz)
+    rank4 = calcDistRank(mv4X,mv4Y,mv4Z,tx,ty,tz)
+    priorQ.put(rank4)
+    valuesToSort.append((rank4,(0,0,0)))
+
     mv5X = int(cpx)
     mv5Y = int(cpy)
     mv5Z = int(cpz)+1
@@ -689,7 +700,7 @@ def getNeighbors(currPos,tgtPos):
         i += 1
 
     ## put the priority move first
-    queueToPass.appendleft((mvX,mvY,mvZ))
+    #queueToPass.appendleft((mvX,mvY,mvZ))
     print("====================neighborhood2")
     return queueToPass
 
@@ -738,7 +749,7 @@ def simpleBreadthFirstSearch(wld1,wld2):
             if positionToCompare not in visited:
                 if wld1.move(MvX,MvY,MvZ) is False:
                     visited[positionToCompare] = True
-                    print("blocked move")
+                    print("===blocked move===")
                     continue
                 else:
                     frontier.put(positionToCompare)
