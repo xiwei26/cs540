@@ -33,6 +33,10 @@ class State:
         self.drone_position = (0,0,0)
         self.drone_attached = False
         self.blocks = {}
+    def __eq__(self,other):
+        return self.blocks == other.blocks and self.drone_position == other.drone_position and self.drone_attached == other.drone_attached
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
 def load_state(file_name):
     state = State()
