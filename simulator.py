@@ -53,7 +53,7 @@ def load_state(file_name):
             elif row[3] == 'blue':
                 state.blocks[position] = (0,0,1)
             else:
-                state.blocks[position] = (row[3],row[4],row[5])
+                state.blocks[position] = (float(row[3]),float(row[4]),float(row[5]))
     return state
 
 def equal(a,b):
