@@ -3,6 +3,7 @@ import heapq
 from itertools import count
 import itertools
 import copy
+import numpy as np
 
 class PriorityQueue:
     def __init__(self):
@@ -31,15 +32,15 @@ def a_star_search(start, goal, successors, heuristic):
         current = frontier.get()
         if goal(current):
             return came_from, current
-            break
         for successor in successors(current):
-            new_cost = cost_so_far[current.drone_position] + 1
+            #new_cost = cost_so_far[current.drone_position] + 1
+            new_cost = cost_so_far[current.drone_position] + np.linalg.norm(np.subtract(current.drone_position,successor.drone_position))
             if successor.drone_position not in cost_so_far or new_cost < cost_so_far[successor.drone_position]:
                 cost_so_far[successor.drone_position] = new_cost
                 priority = new_cost + heuristic(successor)
                 frontier.put(successor, priority)
                 came_from[successor.drone_position] = current
-    return came_from, None
+    print('error: a* could not find goal')
 
 def move_drone_to_position(start,goal):
     goal_test = lambda s: s.drone_position == goal.drone_position
@@ -87,13 +88,14 @@ def high_level_heuristic(state,goal):
             if state.blocks[position] == goal.blocks[goal_position]:
                 (x1, y1, z1) = position
                 (x2, y2, z2) = goal_position
-                heuristic += max(abs(x1 - x2), abs(y1 - y2), abs(z1 - z2))
+                #heuristic += max(abs(x1 - x2), abs(y1 - y2), abs(z1 - z2))
+                heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
             if position == goal_position:
-                heuristic += position[2] + 1
+                heuristic += 100
             #if there are blocks above this one add to heuristic
             above = sim.add_tuple(position,(0,0,1))
             while above in state.blocks:
-                heuristic += above[2]
+                heuristic += 100
                 above = sim.add_tuple(above,(0,0,1))
     return heuristic
                 
@@ -101,6 +103,7 @@ def hill_climb_search(start,goal,heuristic):
     print('hill climbing')
     plan = [start]
     actions = []
+    last_heuristic = 0
     while not goal(plan[-1]):
         next_actions = valid_actions_planner(plan[-1])
         best_step = None
@@ -115,46 +118,44 @@ def hill_climb_search(start,goal,heuristic):
                 best_step = successor
         plan.append(best_step)
         actions.append(best_action)
+        print(best_heuristic)
+        if best_heuristic == last_heuristic:
+            break
+        last_heuristic = best_heuristic
         #sim.plot(best_step, ignore_drone = True)
     return plan,actions
 
-#start = sim.load_state('start.txt')
-#goal_state = sim.load_state('goal.txt')
-#goal_state.drone_position = (2,3,4)
-start = sim.load_state('reversed_start.txt')
-goal_state = sim.load_state('reversed_goal.txt')
+start = sim.load_state('pyramid_start.txt')
+goal_state = sim.load_state('pyramid_goal.txt')
 goal_test = lambda s: s == goal_state
 successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
 h0 = lambda s: heuristic(s,goal_state)
 
-path = move_drone_to_position(start,goal_state)
-'''
-sim.plot(start)
-sim.plot(goal_state)
-for a in path:
-    sim.plot(a)
-'''
 planner_goal = lambda s: sim.equal(s,goal_state)
 planner_successors = lambda s: [take_action_planner(s,a) for a in valid_actions_planner(s)]
 planner_h = lambda s: high_level_heuristic(s,goal_state)
-plan, actions = hill_climb_search(start, planner_goal, planner_h)
+#plan, actions = hill_climb_search(start, planner_goal, planner_h)
 
 def visualize():
     for step in plan:
         sim.plot(step, ignore_drone = True)
 
+#visualize()
 
 full_path = [start]
 for action in actions:
     goal_state = copy.deepcopy(full_path[-1])
     goal_state.drone_position = sim.add_tuple(action[0],(0,0,1))
-    full_path += move_drone_to_position(full_path[-1],goal_state)
+    full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
     full_path.append(sim.take_action(full_path[-1],sim.ACTION_ATTACH))
     goal_state = copy.deepcopy(full_path[-1])
     goal_state.drone_position = sim.add_tuple(action[1],(0,0,1))
-    full_path += move_drone_to_position(full_path[-1],goal_state)
+    full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
     full_path.append(sim.take_action(full_path[-1],sim.ACTION_DETACH))
-
+goal_state = copy.deepcopy(full_path[-1])
+goal_state.drone_position = (0,5,5)
+full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
 #for step in full_path:
 #    sim.plot(step)
-sim.save_video(full_path)
+print('saving video')
+sim.save_video(full_path,framerate=32)
