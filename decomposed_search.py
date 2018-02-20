@@ -4,6 +4,7 @@ from itertools import count
 import itertools
 import copy
 import numpy as np
+import time
 
 class PriorityQueue:
     def __init__(self):
@@ -79,7 +80,6 @@ def take_action_planner(state,action):
     return state
 
 def high_level_heuristic(state,goal):
-    #1st: distance between block destination and current position
     heuristic = 0
     for position in state.blocks:
         if position in goal.blocks and state.blocks[position] == goal.blocks[position]:
@@ -92,7 +92,6 @@ def high_level_heuristic(state,goal):
                 heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
             if position == goal_position:
                 heuristic += 100
-            #if there are blocks above this one add to heuristic
             above = sim.add_tuple(position,(0,0,1))
             while above in state.blocks:
                 heuristic += 100
@@ -125,8 +124,12 @@ def hill_climb_search(start,goal,heuristic):
         #sim.plot(best_step, ignore_drone = True)
     return plan,actions
 
-start = sim.load_state('pyramid_start.txt')
-goal_state = sim.load_state('pyramid_goal.txt')
+def visualize():
+    for step in plan:
+        sim.plot(step, ignore_drone = True)
+
+start = sim.load_state('experiments/pyramid_start.txt')
+goal_state = sim.load_state('experiments/pyramid_goal.txt')
 goal_test = lambda s: s == goal_state
 successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
 h0 = lambda s: heuristic(s,goal_state)
@@ -134,14 +137,9 @@ h0 = lambda s: heuristic(s,goal_state)
 planner_goal = lambda s: sim.equal(s,goal_state)
 planner_successors = lambda s: [take_action_planner(s,a) for a in valid_actions_planner(s)]
 planner_h = lambda s: high_level_heuristic(s,goal_state)
-#plan, actions = hill_climb_search(start, planner_goal, planner_h)
 
-def visualize():
-    for step in plan:
-        sim.plot(step, ignore_drone = True)
-
-#visualize()
-
+t0 = time.time()
+plan, actions = hill_climb_search(start, planner_goal, planner_h)
 full_path = [start]
 for action in actions:
     goal_state = copy.deepcopy(full_path[-1])
@@ -155,7 +153,8 @@ for action in actions:
 goal_state = copy.deepcopy(full_path[-1])
 goal_state.drone_position = (0,5,5)
 full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
-#for step in full_path:
-#    sim.plot(step)
+t1 = time.time()
+
+print('completed in',t1-t0,'seconds')
 print('saving video')
-sim.save_video(full_path,framerate=32)
+sim.save_video(full_path,framerate=8)

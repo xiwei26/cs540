@@ -17,15 +17,12 @@ MIN_Z = 0; MAX_Z = 5
 states_visited = 0
 
 def add_tuple(a,b):
-    '''pairwise add two tuples together and return their result as a new tuple'''
     return tuple(sum(x) for x in zip(a,b))
 
 def block_beneath(position):
-    '''return position beneath given position'''
     return add_tuple(position,(0,0,-1))
 
 def is_inbounds(p):
-    '''checks if given position is within the acceptable range of our space'''
     return p[0] >= MIN_X and p[0] <= MAX_X and p[1] >= MIN_Y and p[1] <= MAX_Y and p[2] >= MIN_Z and p[2] <= MAX_Z
 
 class State:
@@ -140,10 +137,9 @@ def plot(state,save_to_file = None, ignore_drone=False):
     else:
         plt.show()
 
-
 def save_video(path,framerate=2):
     os.system('rm -f movie.mp4')
     for i,state in enumerate(path):
         plot(state,str(i) + ".png")
-    os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vf \"zoompan=d=1+'2*eq(in,1)'+'2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
+    os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vf \"zoompan=d=1+'" + str(framerate) + "*2*eq(in,1)'+'" + str(framerate) + "*2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
     os.system('rm -f *.png')
