@@ -78,6 +78,7 @@ def take_action_planner(state,action):
     planner_states_visited += 1
     state = copy.deepcopy(state)
     state.blocks[action[1]] = state.blocks[action[0]]
+    state.drone_position = sim.add_tuple(action[1],(0,0,1))
     del state.blocks[action[0]]
     return state
 
@@ -112,7 +113,7 @@ def hill_climb_search(start,goal,heuristic):
         best_heuristic = float('inf')
         for action in next_actions:
             successor = take_action_planner(plan[-1],action)
-            current_heuristic = heuristic(successor)
+            current_heuristic = heuristic(successor) + np.linalg.norm(np.subtract(successor.drone_position,action[0]))
             if current_heuristic < best_heuristic:
                 best_heuristic = current_heuristic
                 best_action = action
