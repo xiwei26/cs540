@@ -74,6 +74,8 @@ def valid_actions_planner(state):
     return valid_actions
 
 def take_action_planner(state,action):
+    global planner_states_visited
+    planner_states_visited += 1
     state = copy.deepcopy(state)
     state.blocks[action[1]] = state.blocks[action[0]]
     del state.blocks[action[0]]
@@ -117,7 +119,7 @@ def hill_climb_search(start,goal,heuristic):
                 best_step = successor
         plan.append(best_step)
         actions.append(best_action)
-        print(best_heuristic)
+        #print(best_heuristic)
         if best_heuristic == last_heuristic:
             break
         last_heuristic = best_heuristic
@@ -138,8 +140,12 @@ planner_goal = lambda s: sim.equal(s,goal_state)
 planner_successors = lambda s: [take_action_planner(s,a) for a in valid_actions_planner(s)]
 planner_h = lambda s: high_level_heuristic(s,goal_state)
 
+sim.states_visited = 0
+planner_states_visited = 0
 t0 = time.time()
 plan, actions = hill_climb_search(start, planner_goal, planner_h)
+print('finished plan in',time.time()-t0,'seconds')
+print('finding paths')
 full_path = [start]
 for action in actions:
     goal_state = copy.deepcopy(full_path[-1])
@@ -156,5 +162,8 @@ full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
 t1 = time.time()
 
 print('completed in',t1-t0,'seconds')
+print('number of states visited:',sim.states_visited + planner_states_visited)
+print('length of plan:',len(full_path))
 print('saving video')
 sim.save_video(full_path,framerate=8)
+
