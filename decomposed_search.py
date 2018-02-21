@@ -5,6 +5,8 @@ import itertools
 import copy
 import numpy as np
 import time
+from importlib import reload
+reload(sim)
 
 class PriorityQueue:
     def __init__(self):
@@ -166,5 +168,5 @@ print('completed in',t1-t0,'seconds')
 print('number of states visited:',sim.states_visited + planner_states_visited)
 print('length of plan:',len(full_path))
 print('saving video')
-sim.save_video(full_path,framerate=8)
+sim.save_video(full_path,framerate=24)
 

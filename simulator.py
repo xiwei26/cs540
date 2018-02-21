@@ -141,5 +141,5 @@ def save_video(path,framerate=2):
     os.system('rm -f movie.mp4')
     for i,state in enumerate(path):
         plot(state,str(i) + ".png")
-    os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vf \"zoompan=d=1+'" + str(framerate) + "*2*eq(in,1)'+'" + str(framerate) + "*2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
+    os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vb 20M -vf \"zoompan=d=1+'" + str(framerate) + "*2*eq(in,1)'+'" + str(framerate) + "*2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
     os.system('rm -f *.png')
