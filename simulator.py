@@ -99,7 +99,7 @@ def take_action(state,action):
         print(action)
     return state
         
-def plot(state,save_to_file = None, ignore_drone=False):
+def plot(state,save_to_file = None, ignore_drone=False, square = True):
     top_data = np.full((MAX_Y-MIN_Y+1,MAX_X-MIN_X+1,3),.4,dtype=float)
     front_data = np.full((MAX_Z-MIN_Z+2,MAX_X-MIN_X+1,3),1,dtype=float)
     side_data = np.full((MAX_Z-MIN_Z+2,MAX_Y-MIN_Y+1,3),1,dtype=float)
@@ -120,26 +120,38 @@ def plot(state,save_to_file = None, ignore_drone=False):
             front_data[z-MIN_Z+1,x-MIN_X] = state.blocks[position]
     front_data = np.flip(front_data,0)
     side_data = np.flip(side_data,0)
-    fig,axes = plt.subplots(2,2)
-    axes[0,0].imshow(front_data)
-    axes[0,0].set_axis_off()
-    axes[0,0].set_title('Front')
-    axes[0,1].imshow(side_data)
-    axes[0,1].set_axis_off()
-    axes[0,1].set_title('Side')
-    axes[1,0].imshow(top_data)
-    axes[1,0].set_axis_off()
-    axes[1,0].set_title('Top')
-    axes[1,1].set_axis_off()
+    if square:
+        fig,axes = plt.subplots(2,2)
+        axes[0,0].imshow(front_data)
+        axes[0,0].set_axis_off()
+        axes[0,0].set_title('Front')
+        axes[0,1].imshow(side_data)
+        axes[0,1].set_axis_off()
+        axes[0,1].set_title('Side')
+        axes[1,0].imshow(top_data)
+        axes[1,0].set_axis_off()
+        axes[1,0].set_title('Top')
+        axes[1,1].set_axis_off()
+    else:
+        fig,axes = plt.subplots(3,1)
+        axes[0].imshow(front_data)
+        axes[0].set_axis_off()
+        axes[0].set_title('Front')
+        axes[1].imshow(side_data)
+        axes[1].set_axis_off()
+        axes[1].set_title('Side')
+        axes[2].imshow(top_data)
+        axes[2].set_axis_off()
+        axes[2].set_title('Top')
     if save_to_file:
         plt.savefig(save_to_file)
         plt.close()
     else:
         plt.show()
 
-def save_video(path,framerate=2):
+def save_video(path,framerate=2,ignore_drone=False):
     os.system('rm -f movie.mp4')
     for i,state in enumerate(path):
-        plot(state,str(i) + ".png")
+        plot(state,str(i) + ".png",ignore_drone)
     os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vb 20M -vf \"zoompan=d=1+'" + str(framerate) + "*2*eq(in,1)'+'" + str(framerate) + "*2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
     os.system('rm -f *.png')

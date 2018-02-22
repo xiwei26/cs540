@@ -147,7 +147,7 @@ sim.states_visited = 0
 planner_states_visited = 0
 t0 = time.time()
 plan, actions = hill_climb_search(start, planner_goal, planner_h)
-print('finished plan in',time.time()-t0,'seconds')
+#print('finished plan in',time.time()-t0,'seconds')
 print('finding paths')
 full_path = [start]
 for action in actions:
@@ -167,6 +167,6 @@ t1 = time.time()
 print('completed in',t1-t0,'seconds')
 print('number of states visited:',sim.states_visited + planner_states_visited)
 print('length of plan:',len(full_path))
-print('saving video')
-sim.save_video(full_path,framerate=24)
+#print('saving video')
+#sim.save_video(full_path,framerate=16)
 
