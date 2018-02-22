@@ -133,8 +133,8 @@ def visualize():
     for step in plan:
         sim.plot(step, ignore_drone = True)
 
-start = sim.load_state('experiments/pyramid_start.txt')
-goal_state = sim.load_state('experiments/pyramid_goal.txt')
+start = sim.load_state('experiments/world1.txt')
+goal_state = sim.load_state('experiments/world2.txt')
 goal_test = lambda s: s == goal_state
 successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
 h0 = lambda s: heuristic(s,goal_state)
