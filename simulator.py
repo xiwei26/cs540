@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from matplotlib import colors
 import numpy as np
 import itertools
@@ -19,8 +20,11 @@ states_visited = 0
 def add_tuple(a,b):
     return tuple(sum(x) for x in zip(a,b))
 
-def block_beneath(position):
-    return add_tuple(position,(0,0,-1))
+def beneath(position):
+    return (position[0],position[1],position[2]-1)
+
+def above(position):
+    return (position[0],position[1],position[2]+1)
 
 def is_inbounds(p):
     return p[0] >= MIN_X and p[0] <= MAX_X and p[1] >= MIN_Y and p[1] <= MAX_Y and p[2] >= MIN_Z and p[2] <= MAX_Z
@@ -66,12 +70,12 @@ def valid_actions(state):
         if not drone_destination in state.blocks and is_inbounds(drone_destination):
             if not state.drone_attached:
                 actions.append(move)
-            attached_destination = block_beneath(drone_destination)
+            attached_destination = beneath(drone_destination)
             if state.drone_attached and not attached_destination in state.blocks and is_inbounds(attached_destination):
                 actions.append(move)
     if state.drone_attached:
         actions.append(ACTION_DETACH)
-    elif not state.drone_attached and block_beneath(state.drone_position) in state.blocks:
+    elif not state.drone_attached and beneath(state.drone_position) in state.blocks:
         actions.append(ACTION_ATTACH)
     return actions
     
@@ -83,23 +87,23 @@ def take_action(state,action):
         state.drone_attached = True
     elif action == ACTION_DETACH:
         state.drone_attached = False
-        detached_block_position = block_beneath(state.drone_position)
+        detached_block_position = beneath(state.drone_position)
         detached_block = state.blocks[detached_block_position]
         del state.blocks[detached_block_position]
-        while not block_beneath(detached_block_position) in state.blocks and not detached_block_position[2] == 0:
-            detached_block_position = block_beneath(detached_block_position)
+        while not beneath(detached_block_position) in state.blocks and not detached_block_position[2] == 0:
+            detached_block_position = beneath(detached_block_position)
         state.blocks[detached_block_position] = detached_block
     elif type(action) == tuple:
         drone_destination = add_tuple(state.drone_position,action)
         if state.drone_attached:
-            state.blocks[block_beneath(drone_destination)] = state.blocks[block_beneath(state.drone_position)]
-            del state.blocks[block_beneath(state.drone_position)]
+            state.blocks[beneath(drone_destination)] = state.blocks[beneath(state.drone_position)]
+            del state.blocks[beneath(state.drone_position)]
         state.drone_position = drone_destination
     elif type(action) == str:
         print(action)
     return state
-        
-def plot(state,save_to_file = None, ignore_drone=False, square = True):
+
+def to_image(state, ignore_drone=False):
     top_data = np.full((MAX_Y-MIN_Y+1,MAX_X-MIN_X+1,3),.4,dtype=float)
     front_data = np.full((MAX_Z-MIN_Z+2,MAX_X-MIN_X+1,3),1,dtype=float)
     side_data = np.full((MAX_Z-MIN_Z+2,MAX_Y-MIN_Y+1,3),1,dtype=float)
@@ -120,38 +124,45 @@ def plot(state,save_to_file = None, ignore_drone=False, square = True):
             front_data[z-MIN_Z+1,x-MIN_X] = state.blocks[position]
     front_data = np.flip(front_data,0)
     side_data = np.flip(side_data,0)
-    if square:
-        fig,axes = plt.subplots(2,2)
-        axes[0,0].imshow(front_data)
-        axes[0,0].set_axis_off()
-        axes[0,0].set_title('Front')
-        axes[0,1].imshow(side_data)
-        axes[0,1].set_axis_off()
-        axes[0,1].set_title('Side')
-        axes[1,0].imshow(top_data)
-        axes[1,0].set_axis_off()
-        axes[1,0].set_title('Top')
-        axes[1,1].set_axis_off()
-    else:
-        fig,axes = plt.subplots(3,1)
-        axes[0].imshow(front_data)
-        axes[0].set_axis_off()
-        axes[0].set_title('Front')
-        axes[1].imshow(side_data)
-        axes[1].set_axis_off()
-        axes[1].set_title('Side')
-        axes[2].imshow(top_data)
-        axes[2].set_axis_off()
-        axes[2].set_title('Top')
+    return front_data,side_data,top_data
+    
+def create_figure():
+    fig,axes = plt.subplots(2,2)
+    axes[0,0].set_axis_off()
+    axes[0,0].set_title('Front')
+    axes[0,1].set_axis_off()
+    axes[0,1].set_title('Side')
+    axes[1,0].set_axis_off()
+    axes[1,0].set_title('Top')
+    axes[1,1].set_axis_off()
+    return fig,axes
+
+def plot(state,save_to_file = None, ignore_drone=False):
+    front,side,top = to_image(state)
+    fig,axes = create_figure()
+    axes[0,0].imshow(front)
+    axes[0,1].imshow(side)
+    axes[1,0].imshow(top)
     if save_to_file:
         plt.savefig(save_to_file)
         plt.close()
     else:
         plt.show()
 
-def save_video(path,framerate=2,ignore_drone=False):
-    os.system('rm -f movie.mp4')
-    for i,state in enumerate(path):
-        plot(state,str(i) + ".png",ignore_drone)
-    os.system("ffmpeg -r " + str(framerate) + " -i %d.png -v 8 -vb 20M -vf \"zoompan=d=1+'" + str(framerate) + "*2*eq(in,1)'+'" + str(framerate) + "*2*eq(in," + str(len(path)) + ")'\" -vcodec mpeg4 -y movie.mp4")
-    os.system('rm -f *.png')
+def animate(plan,framerate=2,ignore_drone=False,save=None):
+    fig,axes = create_figure()
+    front,side,top = to_image(plan[0],ignore_drone)
+    im1 = axes[0,0].imshow(front, animated=True)
+    im2 = axes[0,1].imshow(side, animated=True)
+    im3 = axes[1,0].imshow(top, animated=True)
+    def updatefig(frame):
+        front,side,top = to_image(frame,ignore_drone)
+        im1.set_array(front)
+        im2.set_array(side)
+        im3.set_array(top)
+        return im1,im2,im3,
+    ani = animation.FuncAnimation(fig, updatefig, frames=plan, interval=1000/framerate, blit=True)
+    if save:
+        ani.save(save)
+    else:
+        plt.show()

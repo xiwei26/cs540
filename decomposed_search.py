@@ -60,7 +60,7 @@ def valid_actions_planner(state):
     blocks_to_move = []
     valid_destinations = []
     for block_position in state.blocks:
-        above = sim.add_tuple(block_position,(0,0,1))
+        above = sim.above(block_position)
         if not above in state.blocks:
             valid_destinations.append(above)
             blocks_to_move.append(block_position)
@@ -71,7 +71,7 @@ def valid_actions_planner(state):
     valid_actions = []
     for block in blocks_to_move:
         for destination in valid_destinations:
-            if destination != sim.add_tuple(block,(0,0,1)):
+            if destination != sim.above(block):
                 valid_actions.append((block,destination))
     return valid_actions
 
@@ -80,7 +80,7 @@ def take_action_planner(state,action):
     planner_states_visited += 1
     state = copy.deepcopy(state)
     state.blocks[action[1]] = state.blocks[action[0]]
-    state.drone_position = sim.add_tuple(action[1],(0,0,1))
+    state.drone_position = sim.above(action[1])
     del state.blocks[action[0]]
     return state
 
@@ -97,10 +97,10 @@ def high_level_heuristic(state,goal):
                 heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
             if position == goal_position:
                 heuristic += 100
-            above = sim.add_tuple(position,(0,0,1))
+            above = sim.above(position)
             while above in state.blocks:
                 heuristic += 100
-                above = sim.add_tuple(above,(0,0,1))
+                above = sim.above(above)
     return heuristic
                 
 def hill_climb_search(start,goal,heuristic):
@@ -122,26 +122,23 @@ def hill_climb_search(start,goal,heuristic):
                 best_step = successor
         plan.append(best_step)
         actions.append(best_action)
-        #print(best_heuristic)
         if best_heuristic == last_heuristic:
             break
         last_heuristic = best_heuristic
-        #sim.plot(best_step, ignore_drone = True)
     return plan,actions
 
 def visualize():
-    for step in plan:
-        sim.plot(step, ignore_drone = True)
+    sim.animate(plan, framerate=1, ignore_drone=True)
 
-start = sim.load_state('experiments/world1.txt')
-goal_state = sim.load_state('experiments/world2.txt')
-goal_test = lambda s: s == goal_state
+start = sim.load_state('experiments/reversed_start.txt')
+goal = sim.load_state('experiments/reversed_goal.txt')
+goal_test = lambda s: s == goal
 successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
-h0 = lambda s: heuristic(s,goal_state)
+h0 = lambda s: heuristic(s,goal)
 
-planner_goal = lambda s: sim.equal(s,goal_state)
+planner_goal = lambda s: sim.equal(s,goal)
 planner_successors = lambda s: [take_action_planner(s,a) for a in valid_actions_planner(s)]
-planner_h = lambda s: high_level_heuristic(s,goal_state)
+planner_h = lambda s: high_level_heuristic(s,goal)
 
 sim.states_visited = 0
 planner_states_visited = 0
@@ -152,11 +149,11 @@ print('finding paths')
 full_path = [start]
 for action in actions:
     goal_state = copy.deepcopy(full_path[-1])
-    goal_state.drone_position = sim.add_tuple(action[0],(0,0,1))
+    goal_state.drone_position = sim.above(action[0])
     full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
     full_path.append(sim.take_action(full_path[-1],sim.ACTION_ATTACH))
     goal_state = copy.deepcopy(full_path[-1])
-    goal_state.drone_position = sim.add_tuple(action[1],(0,0,1))
+    goal_state.drone_position = sim.above(action[1])
     full_path += move_drone_to_position(full_path[-1],goal_state)[1:]
     full_path.append(sim.take_action(full_path[-1],sim.ACTION_DETACH))
 goal_state = copy.deepcopy(full_path[-1])
@@ -167,6 +164,7 @@ t1 = time.time()
 print('completed in',t1-t0,'seconds')
 print('number of states visited:',sim.states_visited + planner_states_visited)
 print('length of plan:',len(full_path))
-#print('saving video')
-#sim.save_video(full_path,framerate=16)
+print('saving video')
+sim.animate(full_path,framerate=4)
 
+visualize()
