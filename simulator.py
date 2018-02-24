@@ -6,14 +6,13 @@ import itertools
 import random
 import copy
 import csv
-import os
 
 ACTION_ATTACH = 0
 ACTION_DETACH = 1
 
 MIN_X = -5; MAX_X = 5
-MIN_Y = -5; MAX_Y = 5
-MIN_Z = 0; MAX_Z = 5
+MIN_Y = 0; MAX_Y = 5
+MIN_Z = -5; MAX_Z = 5
 
 states_visited = 0
 
@@ -21,10 +20,10 @@ def add_tuple(a,b):
     return tuple(sum(x) for x in zip(a,b))
 
 def beneath(position):
-    return (position[0],position[1],position[2]-1)
+    return (position[0],position[1]-1,position[2])
 
 def above(position):
-    return (position[0],position[1],position[2]+1)
+    return (position[0],position[1]+1,position[2])
 
 def is_inbounds(p):
     return p[0] >= MIN_X and p[0] <= MAX_X and p[1] >= MIN_Y and p[1] <= MAX_Y and p[2] >= MIN_Z and p[2] <= MAX_Z
@@ -90,7 +89,7 @@ def take_action(state,action):
         detached_block_position = beneath(state.drone_position)
         detached_block = state.blocks[detached_block_position]
         del state.blocks[detached_block_position]
-        while not beneath(detached_block_position) in state.blocks and not detached_block_position[2] == 0:
+        while not beneath(detached_block_position) in state.blocks and not detached_block_position[1] == 0:
             detached_block_position = beneath(detached_block_position)
         state.blocks[detached_block_position] = detached_block
     elif type(action) == tuple:
@@ -104,9 +103,9 @@ def take_action(state,action):
     return state
 
 def to_image(state, ignore_drone=False):
-    top_data = np.full((MAX_Y-MIN_Y+1,MAX_X-MIN_X+1,3),.4,dtype=float)
-    front_data = np.full((MAX_Z-MIN_Z+2,MAX_X-MIN_X+1,3),1,dtype=float)
-    side_data = np.full((MAX_Z-MIN_Z+2,MAX_Y-MIN_Y+1,3),1,dtype=float)
+    top_data = np.full((MAX_Z-MIN_Z+1,MAX_X-MIN_X+1,3),.4,dtype=float)
+    front_data = np.full((MAX_Y-MIN_Y+2,MAX_X-MIN_X+1,3),1,dtype=float)
+    side_data = np.full((MAX_Y-MIN_Y+2,MAX_Z-MIN_Z+1,3),1,dtype=float)
     front_data[0] = .4
     side_data[0] = .4
     for x,y,z in itertools.product(range(MIN_X,MAX_X+1),range(MIN_Y,MAX_Y+1),range(MIN_Z,MAX_Z+1)):
@@ -115,13 +114,13 @@ def to_image(state, ignore_drone=False):
             drone_color = (0,0,0)
             if state.drone_attached:
                 drone_color = (.2,.2,.2)
-            top_data[y-MIN_Y,x-MIN_X] = drone_color
-            front_data[z-MIN_Z+1,x-MIN_X] = drone_color
-            side_data[z-MIN_Z+1,y-MIN_Y] = drone_color
+            top_data[z-MIN_Z,x-MIN_X] = drone_color
+            front_data[y-MIN_Y+1,x-MIN_X] = drone_color
+            side_data[y-MIN_Y+1,z-MIN_Z] = drone_color
         elif position in state.blocks:
-            top_data[y-MIN_Y,x-MIN_X] = state.blocks[position]
-            side_data[z-MIN_Z+1,y-MIN_Y] = state.blocks[position]
-            front_data[z-MIN_Z+1,x-MIN_X] = state.blocks[position]
+            top_data[z-MIN_Z,x-MIN_X] = state.blocks[position]
+            side_data[y-MIN_Y+1,z-MIN_Z] = state.blocks[position]
+            front_data[y-MIN_Y+1,x-MIN_X] = state.blocks[position]
     front_data = np.flip(front_data,0)
     side_data = np.flip(side_data,0)
     return front_data,side_data,top_data
@@ -161,7 +160,7 @@ def animate(plan,framerate=2,ignore_drone=False,save=None):
         im2.set_array(side)
         im3.set_array(top)
         return im1,im2,im3,
-    ani = animation.FuncAnimation(fig, updatefig, frames=plan, interval=1000/framerate, blit=True)
+    ani = animation.FuncAnimation(fig, updatefig, frames=plan, interval=1000/framerate, blit=False)
     if save:
         ani.save(save)
     else:

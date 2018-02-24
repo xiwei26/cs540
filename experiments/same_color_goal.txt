@@ -1,3 +1,0 @@
-0,0,5,drone
-0,0,1,green
-0,0,0,green

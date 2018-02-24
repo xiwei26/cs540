@@ -31,29 +31,29 @@ def a_star_search(start, goal, successors, heuristic):
     came_from[start.drone_position] = None
     cost_so_far = {}
     cost_so_far[start.drone_position] = 0
+    current = None
     while not frontier.empty():
         current = frontier.get()
         if goal(current):
-            return came_from, current
+            break
         for successor in successors(current):
-            #new_cost = cost_so_far[current.drone_position] + 1
             new_cost = cost_so_far[current.drone_position] + np.linalg.norm(np.subtract(current.drone_position,successor.drone_position))
             if successor.drone_position not in cost_so_far or new_cost < cost_so_far[successor.drone_position]:
                 cost_so_far[successor.drone_position] = new_cost
                 priority = new_cost + heuristic(successor)
                 frontier.put(successor, priority)
                 came_from[successor.drone_position] = current
-    print('error: a* could not find goal')
+    path = [current]
+    while not path[-1].drone_position == start.drone_position:
+        path.append(came_from[path[-1].drone_position])
+    path = list(reversed(path))
+    return path
 
 def move_drone_to_position(start,goal):
     goal_test = lambda s: s.drone_position == goal.drone_position
     h = lambda s: heuristic(s,goal)
     successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
-    search,end = a_star_search(start,goal_test,successors,h)
-    path = [end]
-    while not path[-1].drone_position == start.drone_position:
-        path.append(search[path[-1].drone_position])
-    path = list(reversed(path))
+    path = a_star_search(start,goal_test,successors,h)
     return path
 
 def valid_actions_planner(state):
@@ -64,8 +64,8 @@ def valid_actions_planner(state):
         if not above in state.blocks:
             valid_destinations.append(above)
             blocks_to_move.append(block_position)
-    for x,y in itertools.product(range(sim.MIN_X,sim.MAX_X+1),range(sim.MIN_Y,sim.MAX_Y+1)):
-        position = (x,y,0)
+    for x,z in itertools.product(range(sim.MIN_X,sim.MAX_X+1),range(sim.MIN_Z,sim.MAX_Z+1)):
+        position = (x,0,z)
         if not position in state.blocks:
             valid_destinations.append(position)
     valid_actions = []
@@ -91,10 +91,12 @@ def high_level_heuristic(state,goal):
             continue
         for goal_position in goal.blocks:
             if state.blocks[position] == goal.blocks[goal_position]:
-                (x1, y1, z1) = position
-                (x2, y2, z2) = goal_position
-                #heuristic += max(abs(x1 - x2), abs(y1 - y2), abs(z1 - z2))
-                heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+                if False:
+                    (x1, y1, z1) = position
+                    (x2, y2, z2) = goal_position
+                    heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+                else:
+                    heuristic += np.linalg.norm(np.subtract(position,goal_position))
             if position == goal_position:
                 heuristic += 100
             above = sim.above(position)
@@ -123,15 +125,16 @@ def hill_climb_search(start,goal,heuristic):
         plan.append(best_step)
         actions.append(best_action)
         if best_heuristic == last_heuristic:
-            break
+            breakls
         last_heuristic = best_heuristic
     return plan,actions
 
 def visualize():
     sim.animate(plan, framerate=1, ignore_drone=True)
 
-start = sim.load_state('experiments/reversed_start.txt')
-goal = sim.load_state('experiments/reversed_goal.txt')
+experiment = 'pyramid'
+start = sim.load_state('experiments/' + experiment + '_start.txt')
+goal = sim.load_state('experiments/' + experiment + '_goal.txt')
 goal_test = lambda s: s == goal
 successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
 h0 = lambda s: heuristic(s,goal)
@@ -144,7 +147,7 @@ sim.states_visited = 0
 planner_states_visited = 0
 t0 = time.time()
 plan, actions = hill_climb_search(start, planner_goal, planner_h)
-#print('finished plan in',time.time()-t0,'seconds')
+print('finished plan in',time.time()-t0,'seconds')
 print('finding paths')
 full_path = [start]
 for action in actions:
@@ -166,5 +169,3 @@ print('number of states visited:',sim.states_visited + planner_states_visited)
 print('length of plan:',len(full_path))
 print('saving video')
 sim.animate(full_path,framerate=4)
-
-visualize()
