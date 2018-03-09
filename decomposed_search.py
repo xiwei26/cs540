@@ -5,6 +5,7 @@ import itertools
 import copy
 import numpy as np
 import time
+import math
 from importlib import reload
 reload(sim)
 
@@ -89,27 +90,27 @@ def high_level_heuristic(state,goal):
     for position in state.blocks:
         if position in goal.blocks and state.blocks[position] == goal.blocks[position]:
             continue
+        elif position in goal.blocks:
+            heuristic += 30
+        above = sim.above(position)
+        while above in state.blocks:
+            heuristic += 30
+            above = sim.above(above)
+        min_distance = float('inf')
         for goal_position in goal.blocks:
-            if state.blocks[position] == goal.blocks[goal_position]:
-                if False:
-                    (x1, y1, z1) = position
-                    (x2, y2, z2) = goal_position
-                    heuristic += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
-                else:
-                    heuristic += np.linalg.norm(np.subtract(position,goal_position))
-            if position == goal_position:
-                heuristic += 100
-            above = sim.above(position)
-            while above in state.blocks:
-                heuristic += 100
-                above = sim.above(above)
+            if state.blocks[position] == goal.blocks[goal_position]: 
+                x1, y1, z1 = position
+                x2, y2, z2 = goal_position
+                distance = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+                if distance < min_distance:
+                    min_distance = distance
+        heuristic += min_distance
     return heuristic
                 
 def hill_climb_search(start,goal,heuristic):
     print('hill climbing')
     plan = [start]
     actions = []
-    last_heuristic = 0
     while not goal(plan[-1]):
         next_actions = valid_actions_planner(plan[-1])
         best_step = None
@@ -117,16 +118,14 @@ def hill_climb_search(start,goal,heuristic):
         best_heuristic = float('inf')
         for action in next_actions:
             successor = take_action_planner(plan[-1],action)
-            current_heuristic = heuristic(successor) + np.linalg.norm(np.subtract(successor.drone_position,action[0]))
+            current_heuristic = heuristic(successor)# + np.linalg.norm(np.subtract(plan[-1].drone_position,action[0]))
             if current_heuristic < best_heuristic:
                 best_heuristic = current_heuristic
                 best_action = action
                 best_step = successor
+        print(best_heuristic)
         plan.append(best_step)
         actions.append(best_action)
-        if best_heuristic == last_heuristic:
-            breakls
-        last_heuristic = best_heuristic
     return plan,actions
 
 def visualize():
@@ -168,4 +167,4 @@ print('completed in',t1-t0,'seconds')
 print('number of states visited:',sim.states_visited + planner_states_visited)
 print('length of plan:',len(full_path))
 print('saving video')
-sim.animate(full_path,framerate=4)
+sim.animate(full_path,framerate=16)
