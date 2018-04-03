@@ -3,7 +3,7 @@ import itertools
 import copy
 import math
 
-planner_states_visited = 0
+states_visited = 0
 
 def valid_actions_planner(state):
     blocks_to_move = []
@@ -25,8 +25,8 @@ def valid_actions_planner(state):
     return valid_actions
 
 def take_action_planner(state,action):
-    global planner_states_visited
-    planner_states_visited += 1
+    global states_visited
+    states_visited += 1
     state = copy.deepcopy(state)
     state.blocks[action[1]] = state.blocks[action[0]]
     state.drone_position = sim.above(action[1])
@@ -74,4 +74,4 @@ def hill_climb_search(start,goal):
         print(best_heuristic)
         plan.append(best_step)
         actions.append(best_action)
-    return plan,actions
+    return plan[1:],actions

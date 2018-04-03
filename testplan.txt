@@ -1,0 +1,19 @@
+Some testing ideas:
+
+floating blocks
+ start state:
+2,0,3,red
+-1,0,-1,blue
+4,0,-8,green
+ goal state:
+?,2,?,red
+ this will help test the agents ability to plan to move blocks it doesn't know it needs by goal spec
+
+tiny tower
+ start state:
+-5,0,12,red
+-6,0,12,drone
+20,0,10,blue
+ goal state
+?,0,?,red
+?,1,?,blue

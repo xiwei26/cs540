@@ -10,11 +10,11 @@ import csv
 ACTION_ATTACH = 0
 ACTION_DETACH = 1
 
-MIN_X = -5; MAX_X = 5
-MIN_Y = 0; MAX_Y = 5
-MIN_Z = -5; MAX_Z = 5
+MIN_X = -50; MAX_X = 50
+MIN_Y = 0; MAX_Y = 50
+MIN_Z = -50; MAX_Z = 50
 
-COLOR_MAP = {'red':(1,0,0), 'green':(0,1,0), 'blue':(0,0,1)}
+COLOR_MAP = {'red':(1,0,0), 'green':(0,1,0), 'blue':(0,0,1), 'white':(.9,.9,.9)}
 
 states_visited = 0
 
@@ -45,9 +45,15 @@ def load_state(file_name):
     with open(file_name,'r') as csvfile:
         csvReader = csv.reader(csvfile)
         for row in csvReader:
-            position = (int(row[0]),int(row[1]),int(row[2]))
+            read_position = lambda p: row[p] if row[p] == '?' else int(row[p])
+            x = read_position(0)
+            y = read_position(1)
+            z = read_position(2)
+            position = (x,y,z)
             if row[3] == 'drone':
                 state.drone_position = position
+            elif row[3] == '?':
+                state.blocks[position] = '?'
             elif row[3] in COLOR_MAP:
                 state.blocks[position] = COLOR_MAP[row[3]]
             else:
@@ -56,6 +62,60 @@ def load_state(file_name):
 
 def equal(a,b):
     return a.blocks == b.blocks
+
+def at_goal(state,goal):
+    #check if key and value is in goal
+    #even if its not, check if it fulfills some requirement
+    #can there be requirements that are not met in certain orderings but not others?
+    #for instance, what if we had:
+    # ?,?,2,?
+    # ?,3,2,?
+    #for the goal and the state included
+    # 0,3,2,white
+    # 0,2,2,blue
+    #and the first block was used to fulfill the first requirement, that means that the second block cannot fulfill the second
+    #so even though it is a valid solution, it would not be reported correctly
+    #so we just fill the strictest requirements first then right? that would work for this case
+    #but what if there were 2 seperate requirements filled by one thing that could be split into several?
+    #ie
+    # ?,?,2,?
+    # ?,3,?,?
+    #and state
+    # 1,3,2,blue
+    # 3,2,2,white
+    #there would still be problems
+    #so first we should check which blocks fulfill the fewest requirements or something
+    #so first, if a goal is fully specified, as in
+    # 2,1,3,green
+    #then the check is easy. see if the right block occupies the right position
+    '''
+    so if a goal block can only be fulfilled by one block
+    use that block to fulfill that goal, remove the block from the list of possible candidates
+    3,2,3,blue
+    1,2,5,blue
+    3,3,3,green
+
+    ?,?,3,?
+    ?,2,?,?
+    ?,?,?,blue
+    '''
+
+    #problem is assigning blocks to fill goal requirements
+    #first, prune every block that cannot fill any goal state
+    #second, assign every goal state that can be fulfilled by only one block
+    #third
+    fills_requirement = lambda a,b: a == b or b == '?' 
+    fulfill_requirement = lambda b,r: fills_requirement(b[0],r[0]) and fills_requirement(b[1],r[1]) and fills_requirement(b[2],r[2]) and fills_requirement(state.blocks[b],goal.blocks[r])
+    state = copy.deep_copy(state)
+    goal = copy.deep_copy(goal)
+
+    
+    #for goal_pos in goal.blocks:
+    #    for state_pos in state.blocks:
+    #        if fulfill_requirement(state_key,goal_pos):
+                
+            
+        
         
 def valid_actions(state):
     actions = []
@@ -160,6 +220,7 @@ def animate(plan,framerate=2,ignore_drone=False,save=None):
         return im1,im2,im3,
     ani = animation.FuncAnimation(fig, updatefig, frames=plan, interval=1000/framerate, blit=False)
     if save:
-        ani.save(save)
+        ani.save(save,dpi=200)
+        plt.close()
     else:
         plt.show()

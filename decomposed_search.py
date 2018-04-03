@@ -9,7 +9,7 @@ reload(move_drone)
 reload(planner)
 
 def make_plan(start, goal):
-    planner.planner_states_visited = 0
+    planner.states_visited = 0
     sim.states_visited = 0
     t0 = time.time()
     plan, actions = planner.hill_climb_search(start, goal)
@@ -17,20 +17,15 @@ def make_plan(start, goal):
     print('finding paths')
     full_path = [start]
     for action in actions:
-        goal_state = copy.deepcopy(full_path[-1])
-        goal_state.drone_position = sim.above(action[0])
-        full_path += move_drone.move_drone(full_path[-1],goal_state.drone_position)[1:]
+        next_drone_position = sim.above(action[0])
+        full_path += move_drone.move_drone(full_path[-1],next_drone_position)
         full_path.append(sim.take_action(full_path[-1],sim.ACTION_ATTACH))
-        goal_state = copy.deepcopy(full_path[-1])
-        goal_state.drone_position = sim.above(action[1])
-        full_path += move_drone.move_drone(full_path[-1],goal_state.drone_position)[1:]
+        next_drone_position = sim.above(action[1])
+        full_path += move_drone.move_drone(full_path[-1],next_drone_position)
         full_path.append(sim.take_action(full_path[-1],sim.ACTION_DETACH))
-    goal_state = copy.deepcopy(full_path[-1])
-    goal_state.drone_position = (0,5,5)
-    full_path += move_drone.move_drone(full_path[-1],goal_state.drone_position)[1:]
     t1 = time.time()
     print('completed in',t1-t0,'seconds')
-    print('number of states visited:',sim.states_visited + planner.planner_states_visited)
+    print('number of states visited:', sim.states_visited + planner.states_visited)
     print('length of plan:',len(full_path))
     return full_path
 
