@@ -14,6 +14,8 @@ MIN_X = -5; MAX_X = 5
 MIN_Y = 0; MAX_Y = 5
 MIN_Z = -5; MAX_Z = 5
 
+COLOR_MAP = {'red':(1,0,0), 'green':(0,1,0), 'blue':(0,0,1)}
+
 states_visited = 0
 
 def add_tuple(a,b):
@@ -46,12 +48,8 @@ def load_state(file_name):
             position = (int(row[0]),int(row[1]),int(row[2]))
             if row[3] == 'drone':
                 state.drone_position = position
-            elif row[3] == 'red':
-                state.blocks[position] = (1,0,0)
-            elif row[3] == 'green':
-                state.blocks[position] = (0,1,0)
-            elif row[3] == 'blue':
-                state.blocks[position] = (0,0,1)
+            elif row[3] in COLOR_MAP:
+                state.blocks[position] = COLOR_MAP[row[3]]
             else:
                 state.blocks[position] = (float(row[3]),float(row[4]),float(row[5]))
     return state
