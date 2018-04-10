@@ -34,15 +34,16 @@ def take_action_planner(state,action):
     return state
 
 def planner_heuristic(state,goal):
+    max_distance = sim.MAX_X + 1 - sim.MIN_X + sim.MAX_Y + 1 - sim.MIN_Y + sim.MAX_Z + 1 - sim.MIN_Z
     heuristic = 0
     for position in state.blocks:
         if position in goal.blocks and (state.blocks[position] == goal.blocks[position] or goal.blocks[position] == '?'):
             continue
         elif position in goal.blocks:
-            heuristic += 30
+            heuristic += max_distance * max_distance * max_distance
         above = sim.above(position)
         while above in state.blocks:
-            heuristic += 30
+            heuristic += max_distance * max_distance
             above = sim.above(above)
         min_distance = float('inf')
         for goal_position in goal.blocks:
@@ -55,7 +56,10 @@ def planner_heuristic(state,goal):
                     y2 = y1
                 if z2 == '?':
                     z2 = z1
-                distance = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+                distance = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2) * max_distance
+                droneX,droneY,droneZ = state.drone_position
+                destX,destY,destZ = sim.above(position)
+                distance += math.sqrt((droneX-destX)**2 + (droneY-destY)**2 + (droneZ-destZ)**2)
                 if distance < min_distance:
                     min_distance = distance
         heuristic += min_distance
