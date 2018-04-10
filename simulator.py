@@ -64,58 +64,24 @@ def equal(a,b):
     return a.blocks == b.blocks
 
 def at_goal(state,goal):
-    #check if key and value is in goal
-    #even if its not, check if it fulfills some requirement
-    #can there be requirements that are not met in certain orderings but not others?
-    #for instance, what if we had:
-    # ?,?,2,?
-    # ?,3,2,?
-    #for the goal and the state included
-    # 0,3,2,white
-    # 0,2,2,blue
-    #and the first block was used to fulfill the first requirement, that means that the second block cannot fulfill the second
-    #so even though it is a valid solution, it would not be reported correctly
-    #so we just fill the strictest requirements first then right? that would work for this case
-    #but what if there were 2 seperate requirements filled by one thing that could be split into several?
-    #ie
-    # ?,?,2,?
-    # ?,3,?,?
-    #and state
-    # 1,3,2,blue
-    # 3,2,2,white
-    #there would still be problems
-    #so first we should check which blocks fulfill the fewest requirements or something
-    #so first, if a goal is fully specified, as in
-    # 2,1,3,green
-    #then the check is easy. see if the right block occupies the right position
-    '''
-    so if a goal block can only be fulfilled by one block
-    use that block to fulfill that goal, remove the block from the list of possible candidates
-    3,2,3,blue
-    1,2,5,blue
-    3,3,3,green
-
-    ?,?,3,?
-    ?,2,?,?
-    ?,?,?,blue
-    '''
-
-    #problem is assigning blocks to fill goal requirements
-    #first, prune every block that cannot fill any goal state
-    #second, assign every goal state that can be fulfilled by only one block
-    #third
-    fills_requirement = lambda a,b: a == b or b == '?' 
-    fulfill_requirement = lambda b,r: fills_requirement(b[0],r[0]) and fills_requirement(b[1],r[1]) and fills_requirement(b[2],r[2]) and fills_requirement(state.blocks[b],goal.blocks[r])
-    state = copy.deep_copy(state)
-    goal = copy.deep_copy(goal)
-
-    
-    #for goal_pos in goal.blocks:
-    #    for state_pos in state.blocks:
-    #        if fulfill_requirement(state_key,goal_pos):
-                
-            
-        
+    eq = lambda a,b: a == b or b == '?'
+    fills_requirement = lambda b,r: eq(b[0],r[0]) and eq(b[1],r[1]) and eq(b[2],r[2]) and eq(state.blocks[b],goal.blocks[r])
+    requirements = {}
+    for goal_position in goal.blocks:
+        requirements[(goal_position,goal.blocks[goal_position])] = []
+        for block_position in state.blocks:
+            if fills_requirement(block_position, goal_position):
+                requirements[(goal_position,goal.blocks[goal_position])].append(block_position)
+    while requirements:
+        min_requirement = min(requirements, key=lambda x: len(requirements[x]))
+        if len(requirements[min_requirement]) == 0:
+            return False
+        block = requirements[min_requirement]
+        del requirements[min_requirement]
+        for requirement in requirements:
+            if block in requirements[requirement]:
+                requirements[requirement].remove(block)
+    return True
         
 def valid_actions(state):
     actions = []

@@ -36,7 +36,7 @@ def take_action_planner(state,action):
 def planner_heuristic(state,goal):
     heuristic = 0
     for position in state.blocks:
-        if position in goal.blocks and state.blocks[position] == goal.blocks[position]:
+        if position in goal.blocks and (state.blocks[position] == goal.blocks[position] or goal.blocks[position] == '?'):
             continue
         elif position in goal.blocks:
             heuristic += 30
@@ -46,9 +46,15 @@ def planner_heuristic(state,goal):
             above = sim.above(above)
         min_distance = float('inf')
         for goal_position in goal.blocks:
-            if state.blocks[position] == goal.blocks[goal_position]: 
+            if state.blocks[position] == goal.blocks[goal_position] or goal.blocks[goal_position] == '?':
                 x1, y1, z1 = position
                 x2, y2, z2 = goal_position
+                if x2 == '?':
+                    x2 = x1
+                if y2 == '?':
+                    y2 = y1
+                if z2 == '?':
+                    z2 = z1
                 distance = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
                 if distance < min_distance:
                     min_distance = distance
@@ -59,7 +65,7 @@ def hill_climb_search(start,goal):
     print('hill climbing')
     plan = [start]
     actions = []
-    while not sim.equal(plan[-1],goal):
+    while not sim.at_goal(plan[-1],goal):
         next_actions = valid_actions_planner(plan[-1])
         best_step = None
         best_action = None

@@ -16,6 +16,7 @@ def make_plan(start, goal):
     print('finished plan in',time.time()-t0,'seconds')
     print('finding paths')
     full_path = [start]
+    print (actions)
     for action in actions:
         next_drone_position = sim.above(action[0])
         full_path += move_drone.move_drone(full_path[-1],next_drone_position)
@@ -29,7 +30,7 @@ def make_plan(start, goal):
     print('length of plan:',len(full_path))
     return full_path
 
-experiment = 'reversed'
+experiment = 'example'
 start = sim.load_state('experiments/' + experiment + '_start.txt')
 goal = sim.load_state('experiments/' + experiment + '_goal.txt')
 full_path = make_plan(start,goal)
