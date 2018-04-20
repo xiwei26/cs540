@@ -30,9 +30,16 @@ def make_plan(start, goal):
     print('length of plan:',len(full_path))
     return full_path
 
-experiment = 'example'
+experiment = 'test3'
 start = sim.load_state('experiments/' + experiment + '_start.txt')
 goal = sim.load_state('experiments/' + experiment + '_goal.txt')
 full_path = make_plan(start,goal)
 print('saving video')
 sim.animate(full_path,framerate=16)
+'''
+what have i done?
+reading from a file in the order specified by Bruce (internally everything else is the same)
+fixed an issue where a* calculated distance improperly, leading to much longer run times then necessary
+fixed an issue where steps taken by a* were not reported, steps taken is now more accurate
+planner heuristic would mistakenly think that goal was reached prematurely, causing test case three to get stuck. fixed
+'''

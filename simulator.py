@@ -10,11 +10,12 @@ import csv
 ACTION_ATTACH = 0
 ACTION_DETACH = 1
 
-MIN_X = -50; MAX_X = 50
-MIN_Y = 0; MAX_Y = 50
-MIN_Z = -50; MAX_Z = 50
+size = 50
+MIN_X = -size; MAX_X = size
+MIN_Y = 0; MAX_Y = size
+MIN_Z = -size; MAX_Z = size
 
-COLOR_MAP = {'red':(1,0,0), 'green':(0,1,0), 'blue':(0,0,1), 'white':(.9,.9,.9)}
+COLOR_MAP = {'red':(1,0,0), 'green':(0,1,0), 'blue':(0,0,1), 'white':(.9,.9,.9), 'black':(.1,.1,.1)}
 
 states_visited = 0
 
@@ -47,8 +48,8 @@ def load_state(file_name):
         for row in csvReader:
             read_position = lambda p: row[p] if row[p] == '?' else int(row[p])
             x = read_position(0)
-            y = read_position(1)
-            z = read_position(2)
+            y = read_position(2)
+            z = read_position(1)
             position = (x,y,z)
             if row[3] == 'drone':
                 state.drone_position = position
@@ -60,8 +61,22 @@ def load_state(file_name):
                 state.blocks[position] = (float(row[3]),float(row[4]),float(row[5]))
     return state
 
-def equal(a,b):
+def states_equal(a,b):
     return a.blocks == b.blocks
+
+def equal(a,b):
+    return a == b or a == '?' or b == '?'
+
+def position_equal(a,b):
+    return equal(a[0],b[0]) and equal(a[1],b[1]) and equal(a[2],b[2])
+
+def goal_satisfied(goal_pos,goal,state):
+    eq = lambda a,b: a == b or b == '?'
+    fills_requirement = lambda b,r: eq(b[0],r[0]) and eq(b[1],r[1]) and eq(b[2],r[2]) and eq(state.blocks[b],goal.blocks[r])
+    for block_pos in state.blocks:
+        if fills_requirement(block_pos,goal_pos):
+            return True
+    return False
 
 def at_goal(state,goal):
     eq = lambda a,b: a == b or b == '?'

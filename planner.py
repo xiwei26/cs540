@@ -33,21 +33,39 @@ def take_action_planner(state,action):
     del state.blocks[action[0]]
     return state
 
+max_distance = sim.MAX_X + 1 - sim.MIN_X + sim.MAX_Y + 1 - sim.MIN_Y + sim.MAX_Z + 1 - sim.MIN_Z
+
+#blocks are getting punished for having stuff on top of them even if those blocks aren't needed
 def planner_heuristic(state,goal):
-    max_distance = sim.MAX_X + 1 - sim.MIN_X + sim.MAX_Y + 1 - sim.MIN_Y + sim.MAX_Z + 1 - sim.MIN_Z
+    ignored_goals = {}
     heuristic = 0
+    for goal_pos in goal.blocks:
+        if sim.goal_satisfied(goal_pos,goal,state) and goal_pos not in ignored_goals:
+            ignored_goals[goal_pos] = goal.blocks[goal_pos]
+    for goal_pos in goal.blocks:
+        if goal_pos[1] != '?':
+            found_block = False
+            for i in range(goal_pos[1]-1,-1,-1):
+                for block_pos in state.blocks:
+                    if sim.position_equal(block_pos,(goal_pos[0],i,goal_pos[2])):
+                        found_block = True
+                        break
+                if found_block:
+                    break
+                heuristic += max_distance ** 2
     for position in state.blocks:
-        if position in goal.blocks and (state.blocks[position] == goal.blocks[position] or goal.blocks[position] == '?'):
+        if position in ignored_goals:
             continue
         elif position in goal.blocks:
-            heuristic += max_distance * max_distance * max_distance
-        above = sim.above(position)
-        while above in state.blocks:
-            heuristic += max_distance * max_distance
-            above = sim.above(above)
+            heuristic += max_distance ** 4
         min_distance = float('inf')
         for goal_position in goal.blocks:
-            if state.blocks[position] == goal.blocks[goal_position] or goal.blocks[goal_position] == '?':
+            if state.blocks[position] == goal.blocks[goal_position]:
+                above = sim.above(position)
+                while above in state.blocks:
+                    heuristic += max_distance ** 4
+                    above = sim.above(above)
+
                 x1, y1, z1 = position
                 x2, y2, z2 = goal_position
                 if x2 == '?':
@@ -59,10 +77,10 @@ def planner_heuristic(state,goal):
                 distance = math.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2) * max_distance
                 droneX,droneY,droneZ = state.drone_position
                 destX,destY,destZ = sim.above(position)
-                distance += math.sqrt((droneX-destX)**2 + (droneY-destY)**2 + (droneZ-destZ)**2)
+                distance += math.sqrt((droneX-destX)**2 + (droneY-destY)**2 + (droneZ-destZ)**2) * max_distance ** .5
                 if distance < min_distance:
                     min_distance = distance
-        heuristic += min_distance
+        heuristic += min_distance if min_distance != float('inf') else 0
     return heuristic
                 
 def hill_climb_search(start,goal):

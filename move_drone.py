@@ -1,3 +1,4 @@
+import math
 import simulator as sim
 import heapq
 from itertools import count
@@ -14,12 +15,15 @@ class PriorityQueue:
     def get(self):
         return heapq.heappop(self.elements)[2]
 
+def distance(a,b):
+    (x1, y1, z1) = a
+    (x2, y2, z2) = b
+    return math.sqrt((x1-x2)**2 + (y1-y1)**2 + (z1-z2)**2)
+    
 def heuristic(state, goal):
-    (x1, y1, z1) = state.drone_position
-    (x2, y2, z2) = goal
-    return max(abs(x1 - x2), abs(y1 - y2), abs(z1 - z2))
+    return distance(state.drone_position,goal)
 
-def a_star_search(start, goal, successors):
+def a_star_search(start, goal):
     frontier = PriorityQueue()
     frontier.put(start, 0)
     came_from = {}
@@ -27,12 +31,15 @@ def a_star_search(start, goal, successors):
     cost_so_far = {}
     cost_so_far[start.drone_position] = 0
     current = None
+    states_visited = 0
     while not frontier.empty():
         current = frontier.get()
         if current.drone_position == goal:
             break
-        for successor in successors(current):
-            new_cost = cost_so_far[current.drone_position] + np.linalg.norm(np.subtract(current.drone_position,successor.drone_position))
+        for action in sim.valid_actions(current):
+            successor = sim.take_action(current,action)
+            states_visited += 1
+            new_cost = cost_so_far[current.drone_position] + distance(current.drone_position,successor.drone_position)
             if successor.drone_position not in cost_so_far or new_cost < cost_so_far[successor.drone_position]:
                 cost_so_far[successor.drone_position] = new_cost
                 priority = new_cost + heuristic(successor, goal)
@@ -42,9 +49,9 @@ def a_star_search(start, goal, successors):
     while not path[-1].drone_position == start.drone_position:
         path.append(came_from[path[-1].drone_position])
     path = list(reversed(path))
+    sim.states_visited += states_visited
     return path
 
 def move_drone(start,goal):
-    successors = lambda s: [sim.take_action(s,a) for a in sim.valid_actions(s)]
-    path = a_star_search(start,goal,successors)
+    path = a_star_search(start,goal)
     return path
