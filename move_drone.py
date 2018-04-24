@@ -18,7 +18,7 @@ class PriorityQueue:
 def distance(a,b):
     (x1, y1, z1) = a
     (x2, y2, z2) = b
-    return math.sqrt((x1-x2)**2 + (y1-y1)**2 + (z1-z2)**2)
+    return math.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
     
 def heuristic(state, goal):
     return distance(state.drone_position,goal)
@@ -50,8 +50,24 @@ def a_star_search(start, goal):
         path.append(came_from[path[-1].drone_position])
     path = list(reversed(path))
     sim.states_visited += states_visited
+    print(states_visited)
+    return path
+
+def greedy_search(start,goal):
+    path = [start]
+    while path[-1].drone_position != goal:
+        best_step = None
+        best_heuristic = float('inf')
+        for action in sim.valid_actions(path[-1]):
+            successor = sim.take_action(path[-1],action)
+            h = heuristic(successor,goal)
+            if h < best_heuristic:
+                best_heuristic = h
+                best_step = successor
+        path.append(best_step)
     return path
 
 def move_drone(start,goal):
     path = a_star_search(start,goal)
+    #path = greedy_search(start,goal)
     return path
